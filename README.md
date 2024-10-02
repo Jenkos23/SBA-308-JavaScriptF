@@ -21,4 +21,4 @@ I analyze and transform this data such that the output of my program is an array
 
 If an AssignmentGroup does not belong to its course (mismatching course_id), my  program throws an error, letting the user know that the input was invalid. Similar data validation should occur elsewhere within the program.
 
-Im still figuring out how to make sure my function output corretly
+#I'm still figuring out how to make sure my function output correctly
