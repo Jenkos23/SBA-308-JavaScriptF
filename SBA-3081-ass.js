@@ -13,7 +13,7 @@ const AssignmentGroup = {
     assignments: [
         {
             id: 1,
-            name: "Seeing the Divine facts",
+            name: "Seeing the Divine Facts",
             due_at: "2023-01-25",
             points_possible: 50
         },
@@ -25,7 +25,7 @@ const AssignmentGroup = {
         },
         {
             id: 3,
-            name: "Rule your World",
+            name: "Rule Your World",
             due_at: "2023-03-15", 
             points_possible: 500
         }
@@ -76,20 +76,20 @@ const LearnerSubmissions = [
     }
 ];
 
-function getLearnerData(CourseInfo, assGroup, Submissions) {
+function getLearnerData(CourseInfo, assignmentGroup, submissions) {
     try {
         // Validate that assignment group belongs to the course
-        if (assGroup.course_id !== CourseInfo.id) {
+        if (assignmentGroup.course_id !== CourseInfo.id) {
             throw new Error("Invalid Assignment Group: Course ID does not match.");
         }
 
         const results = [];
-        // Iterate through submissions to collect data
-        let learnerData = {};
+        const learnerData = {};
 
-        for (const submission of Submissions) {
+        // Iterate through submissions to collect data
+        for (const submission of submissions) {
             const { learner_id, assignment_id, submission: { submitted_at, score } } = submission;
-            const assignmentLog = assGroup.assignments.find(a => a.id === assignment_id);
+            const assignmentLog = assignmentGroup.assignments.find(a => a.id === assignment_id);
 
             // Check if assignment exists
             if (!assignmentLog) {
@@ -97,7 +97,7 @@ function getLearnerData(CourseInfo, assGroup, Submissions) {
                 continue; // Skip further processing for this submission
             }
 
-            let { due_at, points_possible } = assignmentLog;
+            const { due_at, points_possible } = assignmentLog;
 
             // Validate points_possible
             if (typeof points_possible !== 'number' || points_possible <= 0) {
@@ -105,12 +105,13 @@ function getLearnerData(CourseInfo, assGroup, Submissions) {
                 continue; // Skip further processing for this submission
             }
 
+            let finalScore = score;
             // Only process assignments that are due
             if (new Date(submitted_at) > new Date(due_at)) {
-                score *= 0.9; // 10% deduction for late submission
+                finalScore *= 0.9; // 10% deduction for late submission
             }
 
-            // Calculate learner data
+            // Initialize learner data if not exists
             if (!learnerData[learner_id]) {
                 learnerData[learner_id] = {
                     totalScore: 0,
@@ -120,9 +121,9 @@ function getLearnerData(CourseInfo, assGroup, Submissions) {
             }
 
             // Update scores
-            learnerData[learner_id].totalScore += score;
+            learnerData[learner_id].totalScore += finalScore;
             learnerData[learner_id].totalPoints += points_possible;
-            learnerData[learner_id].individualScores[assignment_id] = score / points_possible;
+            learnerData[learner_id].individualScores[assignment_id] = finalScore / points_possible;
         }
 
         // Calculate average for each learner
@@ -135,11 +136,11 @@ function getLearnerData(CourseInfo, assGroup, Submissions) {
             results.push({
                 id: Number(learner_id),
                 avg: avg,
-                ...individualScores
+                individualScores
             });
         }
 
-         return (learnerData);
+        return results;
 
     } catch (error) {
         console.error(`Error: ${error.message}`);
